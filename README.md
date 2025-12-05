@@ -167,7 +167,7 @@ ShadowSync represents a new category of financial infrastructure—privacy-prese
 - **PostgreSQL**: Off-chain analytics and reporting infrastructure
 ## Current Implementation
 
-The prototype includes core Daml smart contracts:
+The prototype includes core Daml smart contracts in Folder DAML:
 - `Types.daml` - Core data structures (Tier, Currency, CollateralSpec, LoanStatus)
 - `Liquidity.daml` - Liquidity pool management and bank contributions
 - `Loans.daml` - Borrow requests, loan matching, and lifecycle management
