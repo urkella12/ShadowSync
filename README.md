@@ -165,3 +165,16 @@ ShadowSync represents a new category of financial infrastructure—privacy-prese
 - **TypeScript/React**: Bank-facing dashboard and analytics
 - **JSON Ledger API**: Integration between Daml contracts and frontend applications
 - **PostgreSQL**: Off-chain analytics and reporting infrastructure
+## Current Implementation
+
+The prototype includes core Daml smart contracts:
+- `Types.daml` - Core data structures (Tier, Currency, CollateralSpec, LoanStatus)
+- `Liquidity.daml` - Liquidity pool management and bank contributions
+- `Loans.daml` - Borrow requests, loan matching, and lifecycle management
+
+**Note:** This is a conceptual prototype demonstrating the core workflow. Production implementation would include:
+- Canton-specific privacy features (confidential channels, ZK proofs)
+- Real-time collateral valuation oracles
+- Automated interest calculation and compounding
+- Cross-chain collateral support
+```
