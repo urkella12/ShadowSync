@@ -177,4 +177,3 @@ The prototype includes core Daml smart contracts:
 - Real-time collateral valuation oracles
 - Automated interest calculation and compounding
 - Cross-chain collateral support
-```
