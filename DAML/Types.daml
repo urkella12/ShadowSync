@@ -1,0 +1,29 @@
+module ShadowSync.Types where
+
+import DA.Date (Date)
+
+data Tier
+  = Bronze
+  | Silver
+  | Gold
+  | Custom
+  deriving (Eq, Show)
+
+data Currency
+  = USD
+  | EUR
+  | GBP
+  deriving (Eq, Show)
+
+data CollateralSpec = CollateralSpec with
+  description : Text
+  currency    : Currency
+  amount      : Decimal
+  deriving (Eq, Show)
+
+data LoanStatus
+  = Requested
+  | Active
+  | Repaid
+  | Defaulted
+  deriving (Eq, Show)

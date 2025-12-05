@@ -1,0 +1,99 @@
+module ShadowSync.Loans where
+
+import DA.Date (Date)
+import ShadowSync.Types
+import ShadowSync.Liquidity
+
+template BorrowRequest
+  with
+    borrower     : Party
+    operator     : Party
+    poolCid      : ContractId LiquidityPool
+    currency     : Currency
+    amount       : Decimal
+    startDate    : Date
+    maturityDate : Date
+    collateral   : CollateralSpec
+    minRateBps   : Int
+  where
+    signatory borrower, operator
+
+    choice Cancel : ()
+      controller borrower
+      do
+        archive self
+        pure ()
+
+template PrivateLoan
+  with
+    operator        : Party
+    lender          : Party
+    borrower        : Party
+    poolCid         : ContractId LiquidityPool
+    currency        : Currency
+    principal       : Decimal
+    interestRateBps : Int
+    startDate       : Date
+    maturityDate    : Date
+    status          : LoanStatus
+    collateral      : CollateralSpec
+  where
+    signatory lender, borrower
+    observer operator
+
+    choice Repay : ContractId PrivateLoan
+      with
+        payer       : Party
+        repayAmount : Decimal
+      controller payer
+      do
+        assertMsg "Only the borrower can repay" (payer == borrower)
+        archive self
+        create this with status = Repaid
+
+    choice MarkDefault : ContractId PrivateLoan
+      with
+        caller : Party
+      controller caller
+      do
+        assertMsg "Only the operator can mark default" (caller == operator)
+        archive self
+        create this with status = Defaulted
+
+template MatchEngine
+  with
+    operator : Party
+  where
+    signatory operator
+
+    choice MatchSingleLoan : ContractId PrivateLoan
+      with
+        requestCid      : ContractId BorrowRequest
+        request         : BorrowRequest
+        contributionCid : ContractId LiquidityContribution
+        contribution    : LiquidityContribution
+        lender          : Party
+        rateBps         : Int
+      controller operator
+      do
+        assertMsg "Operator mismatch" (contribution.operator == operator)
+        assertMsg "Pool mismatch" (contribution.poolCid == request.poolCid)
+        assertMsg "Currency mismatch" (contribution.currency == request.currency)
+        assertMsg "Insufficient liquidity" (contribution.amount >= request.amount)
+        assertMsg "Rate too low" (rateBps >= request.minRateBps)
+
+        archive requestCid
+        archive contributionCid
+
+        create PrivateLoan with
+          operator        = operator
+          lender          = lender
+          borrower        = request.borrower
+          poolCid         = request.poolCid
+          currency        = request.currency
+          principal       = request.amount
+          interestRateBps = rateBps
+          startDate       = request.startDate
+          maturityDate    = request.maturityDate
+          status          = Active
+          collateral      = request.collateral

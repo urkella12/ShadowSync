@@ -1,0 +1,39 @@
+module ShadowSync.Liquidity where
+
+import ShadowSync.Types
+
+template BankIdentity
+  with
+    bank      : Party
+    legalName : Text
+  where
+    signatory bank
+
+template LiquidityPool
+  with
+    operator      : Party
+    tier          : Tier
+    currency      : Currency
+    maxDailyLimit : Decimal
+  where
+    signatory operator
+    observer operator
+
+template LiquidityContribution
+  with
+    bank       : Party
+    operator   : Party
+    poolCid    : ContractId LiquidityPool
+    currency   : Currency
+    amount     : Decimal
+  where
+    signatory bank, operator
+
+    choice Withdraw : ()
+      with
+        requester : Party
+      controller requester
+      do
+        assertMsg "Only the contributing bank can withdraw" (requester == bank)
+        archive self
+        pure ()
